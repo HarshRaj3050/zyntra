@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { cn } from "@/lib/utils";
 import { Marquee } from "@/components/auth/ui/marquee";
@@ -7,37 +8,37 @@ const reviews = [
     name: "Loreal",
     username: "@loreal_fredz",
     body: "Actually I love this platform offers so much of features to use.",
-    img: "/avatar/pfp1.png",
+    img: "/avatar/pfp1.jpg",
   },
   {
     name: "Genny",
     username: "@Genny-097",
     body: "Just found wonderful skill development platform. thats amazing!",
-    img: "/avatar/pfp2.png",
+    img: "/avatar/pfp2.jpg",
   },
   {
     name: "John",
     username: "@john",
     body: "The platform is so easy to use. I love it.",
-    img: "/avatar/pfp3.png",
+    img: "/avatar/pfp3.jpg",
   },
   {
     name: "Jenny",
     username: "@jenny",
     body: "i got new friend by using this platform. I love it.",
-    img: "/avatar/pfp4.png",
+    img: "/avatar/pfp4.jpg",
   },
   {
     name: "Marta",
     username: "@marta",
     body: "friend connection and AI support, i used this while preparing for my exams",
-    img: "/avatar/pfp5.png",
+    img: "/avatar/pfp5.jpg",
   },
   {
     name: "James",
     username: "@james",
     body: "TalenzoX is so easy to use, fun and amazing. i must recomened this platform",
-    img: "/avatar/pfp6.png",
+    img: "/avatar/pfp6.jpg",
   },
 ];
 
@@ -65,7 +66,7 @@ const ReviewCard = ({
     >
       <div className="flex flex-row items-center gap-2 text-black">
         <img
-          className="rounded-full object-fill"
+          className="h-7.5 w-7.5 shrink-0 rounded-full object-cover"
           width="30"
           height="30"
           alt=""

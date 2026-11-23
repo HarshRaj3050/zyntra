@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     rules: {
       "*.css": {
+        condition: {
+          path: /(^|\/)src\/.*\.css$/,
+        },
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },
