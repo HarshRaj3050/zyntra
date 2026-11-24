@@ -5,7 +5,7 @@ const email = z
   .trim()
   .email("Please enter a valid email address");
 
-const password = z
+export const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
   .max(100, "Password cannot exceed 100 characters")
@@ -24,7 +24,11 @@ const name = z
 export const signupSchema = z.object({
   name,
   email,
-  password,
+  password: passwordSchema,
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  path: ["confirmPassword"],
+  message: "Passwords do not match",
 });
 
 

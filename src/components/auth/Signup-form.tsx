@@ -18,9 +18,7 @@ import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { signupSchema } from "@/validation/userSchema";
 
-type SignupFormProps = React.ComponentProps<"form"> & {
-  audience?: "learner" | "teacher";
-};
+type SignupFormProps = React.ComponentProps<"form">;
 
 type FormErrors = {
   name?: string[];
@@ -31,7 +29,6 @@ type FormErrors = {
 
 export function SignupForm({
   className,
-  audience = "learner",
   ...props
 }: SignupFormProps) {
   const router = useRouter();
@@ -47,6 +44,7 @@ export function SignupForm({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [serverError, setServerError] = useState("");
+  const [notice, setNotice] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -63,6 +61,7 @@ export function SignupForm({
     }));
 
     setServerError("");
+    setNotice("");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -71,6 +70,7 @@ export function SignupForm({
     setLoading(true);
     setErrors({});
     setServerError("");
+    setNotice("");
 
     try {
       const result = signupSchema.safeParse(formData);
@@ -86,12 +86,8 @@ export function SignupForm({
         options: {
           data: {
             name: result.data.name,
-            role: audience,
           },
-          emailRedirectTo:
-            audience === "teacher"
-              ? `${window.location.origin}/auth/callback?next=/teacher/dashboard`
-              : `${window.location.origin}/user-details`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?createProfile=1`,
         },
       });
 
@@ -108,26 +104,35 @@ export function SignupForm({
         return;
       }
 
-      if (audience === "teacher") {
-        if (data.session) {
-          router.replace("/teacher/dashboard");
-        } else {
-          router.push("/teacher/login");
-        }
+      if (!data.session) {
+        setNotice(
+          "Account created. Check your email to confirm your address; your profile will be set up after confirmation.",
+        );
         return;
       }
 
-      const { error: insertError } = await supabase.from("user_details").insert([
-        {
-          auth_uid: userId,
-          name: result.data.name,
-          email: result.data.email,
-          onGoingProcess: false,
-        },
-      ] as never);
+      const { error: insertError } = await supabase
+        .from("user_details")
+        .upsert(
+          [
+            {
+              auth_uid: userId,
+              name: result.data.name,
+              email: result.data.email,
+              onGoingProcess: false,
+            },
+          ] as never,
+          { onConflict: "auth_uid", ignoreDuplicates: true },
+        );
 
       if (insertError) {
-        console.error("User profile insert error:", insertError);
+        console.error("User profile insert error:", {
+          code: insertError.code,
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint,
+          sessionAvailable: Boolean(data.session),
+        });
 
         setServerError(
           "Your account was created, but your profile could not be saved.",
@@ -136,7 +141,7 @@ export function SignupForm({
         return;
       }
 
-      router.push("/auth/login");
+      router.replace("/user/dashboard");
     } catch (error) {
       console.error("Signup error:", error);
 
@@ -150,21 +155,29 @@ export function SignupForm({
     setLoading(true);
     setServerError("");
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/user/dashboard`,
-      },
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?createProfile=1`,
+        },
+      });
 
-    if (error) {
-      setServerError(error.message);
+      if (error) {
+        setServerError(error.message);
+        return;
+      }
+
+      if (data.url) {
+        window.location.assign(data.url);
+      } else {
+        setServerError("Unable to start Google sign up. Please try again.");
+      }
+    } catch (error) {
+      console.error("Google signup error:", error);
+      setServerError("Unable to start Google sign up. Please try again.");
+    } finally {
       setLoading(false);
-      return;
-    }
-
-    if (data.url) {
-      window.location.assign(data.url);
     }
   };
 
@@ -176,9 +189,7 @@ export function SignupForm({
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">
-            {audience === "teacher" ? "Create teacher account" : "Create your account"}
-          </h1>
+          <h1 className="text-2xl font-bold">Create your account</h1>
 
           <p className="text-sm text-balance text-muted-foreground">
             Fill in the form below to create your account
@@ -270,6 +281,9 @@ export function SignupForm({
         {serverError && (
           <p className="text-center text-sm text-red-500">{serverError}</p>
         )}
+        {notice && (
+          <p className="text-center text-sm text-green-700">{notice}</p>
+        )}
 
         <Field>
           <Button type="submit" disabled={loading} className="w-full bg-black text-white hover:bg-black/80 cursor-pointer">
@@ -277,28 +291,24 @@ export function SignupForm({
           </Button>
         </Field>
 
-        {audience === "learner" && (
-          <>
-            <FieldSeparator>Or continue with</FieldSeparator>
-            <Field>
-              <Button
-                variant="outline"
-                type="button"
-                disabled={loading}
-                onClick={handleGoogleSignup}
-                className="w-full border border-gray-400 bg-white text-black hover:bg-gray-100 cursor-pointer"
-              >
-                <FcGoogle />
-                Sign up with Google
-              </Button>
-            </Field>
-          </>
-        )}
+        <FieldSeparator>Or continue with</FieldSeparator>
+        <Field>
+          <Button
+            variant="outline"
+            type="button"
+            disabled={loading}
+            onClick={handleGoogleSignup}
+            className="w-full border border-gray-400 bg-white text-black hover:bg-gray-100 cursor-pointer"
+          >
+            <FcGoogle />
+            Sign up with Google
+          </Button>
+        </Field>
 
         <FieldDescription className="px-6 text-center">
           Already have an account?{" "}
           <Link
-            href={audience === "teacher" ? "/teacher/login" : "/auth/login"}
+            href="/auth/login"
             className="underline underline-offset-4 hover:text-primary"
           >
             Sign in

@@ -1,0 +1,212 @@
+"use client";
+import { useEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { loginSchema } from "@/validation/userSchema";
+import Link from "next/link";
+import { FcGoogle } from "react-icons/fc";
+
+type LoginFormProps = React.ComponentProps<"form"> & {
+  initialAuthError?: string;
+};
+
+export function LoginForm({
+  className,
+  initialAuthError,
+  ...props
+}: LoginFormProps) {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const supabase = createClient();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState<{
+    email?: string[];
+    password?: string[];
+    auth?: string;
+  }>({ auth: initialAuthError });
+
+  useEffect(() => {
+    if (initialAuthError) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [initialAuthError]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const result = loginSchema.safeParse(formData);
+
+      if (!result.success) {
+        setErrors(result.error.flatten().fieldErrors);
+        return;
+      }
+
+      setErrors({});
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: result.data.email,
+        password: result.data.password,
+      });
+
+      if (error) {
+        setErrors({
+          auth: "Invalid email or password.",
+        });
+        return;
+      }
+
+      router.replace("/user/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors({ auth: "Unable to sign in right now. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setErrors({});
+
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setErrors({ auth: error.message });
+        return;
+      }
+
+      if (data.url) {
+        window.location.assign(data.url);
+      } else {
+        setErrors({ auth: "Unable to start Google sign in. Please try again." });
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      setErrors({ auth: "Unable to start Google sign in. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      onSubmit={handleSubmit}
+      {...props}
+    >
+      <FieldGroup>
+        <div className="flex flex-col items-center gap-1 text-center ">
+          <h1 className="text-2xl font-bold ">
+            Login to your account
+          </h1>
+          <p className="text-sm text-balance text-muted-foreground">
+            Enter your email below to login to your account
+          </p>
+        </div>
+
+        <Field>
+          {errors.auth && <p className="text-red-500 text-sm">{errors.auth}</p>}
+          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+            value={formData.email}
+            onChange={handleChange}
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email[0]}</p>
+          )}
+        </Field>
+
+        <Field>
+          <div className="flex items-center">
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Link
+              href="/auth/forgot-password"
+              className="ml-auto text-sm underline-offset-4 hover:underline"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            value={formData.password}
+            onChange={handleChange}
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password[0]}</p>
+          )}
+        </Field>
+
+        <Field>
+          <Button type="submit" disabled={loading} className="cursor-pointer bg-black text-white">
+            {loading ? "Sending..." : "Login"}
+          </Button>
+        </Field>
+
+        <FieldSeparator>Or continue with</FieldSeparator>
+
+        <Field>
+          <Button
+            variant="outline"
+            type="button"
+            disabled={loading}
+            onClick={handleGoogleLogin}
+            className="cursor-pointer"
+          >
+            <FcGoogle />
+            Login with Google
+          </Button>
+        </Field>
+
+        <FieldDescription className="text-center">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/auth/signup"
+            className="underline underline-offset-4 corsor-pointer"
+          >
+            Sign up
+          </Link>
+        </FieldDescription>
+      </FieldGroup>
+    </form>
+  );
+}

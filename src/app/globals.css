@@ -4,6 +4,8 @@
   --animate-marquee: marquee var(--duration, 40s) linear infinite;
   --animate-marquee-vertical: marquee-vertical var(--duration, 40s) linear infinite;
   --animate-shiny-text: shiny-text 8s linear infinite;
+  --animate-nav-menu-in: nav-menu-in 180ms ease-out;
+  --animate-nav-menu-out: nav-menu-out 140ms ease-in;
 
   @keyframes marquee {
     to {
@@ -24,6 +26,30 @@
 
     to {
       background-position: -100% 0;
+    }
+  }
+
+  @keyframes nav-menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.375rem) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes nav-menu-out {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(-0.25rem) scale(0.98);
     }
   }
 }
