@@ -2,7 +2,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>user Mode landing page</div>
+    <div className="flex justify-center items-center h-dvh">user Mode landing page</div>
   )
 }
 

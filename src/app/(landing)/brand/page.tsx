@@ -2,7 +2,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>brand Mode landing page</div>
+    <div className="flex justify-center items-center h-dvh">brand Mode landing page</div>
   )
 }
 

@@ -21,7 +21,6 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -64,7 +63,6 @@ const components = [
 ];
 
 const navItems = [
-  { name: "Creators Mode", link: "/" },
   { name: "Components", link: "/docs/primitives/alert-dialog" },
   { name: "With Icon", link: "/docs" },
   { name: "Docs", link: "/docs" },
@@ -91,12 +89,12 @@ const modeItems = [
 export default function LandingNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const activeModeTitle =
-    modeItems.find(
-      (item) =>
-        pathname === item.href ||
-        (item.href !== "/" && pathname.startsWith(`${item.href}/`)),
-    )?.title ?? modeItems[0].title;
+  const activeMode = modeItems.find(
+    (item) =>
+      pathname === item.href ||
+      (item.href !== "/" && pathname.startsWith(`${item.href}/`)),
+  );
+  const activeModeTitle = activeMode?.title ?? modeItems[0].title;
 
   return (
     <div className="relative w-full">
@@ -128,7 +126,7 @@ export default function LandingNavbar() {
               <NavigationMenuItem className="hidden md:flex">
                 <NavigationMenuTrigger>Components</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                  <ul className="grid w-100 gap-2 md:w-125 md:grid-cols-2 lg:w-150">
                     {components.map((component) => (
                       <ListItem
                         key={component.title}
@@ -144,7 +142,7 @@ export default function LandingNavbar() {
               <NavigationMenuItem>
                 <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[200px]">
+                  <ul className="grid w-50">
                     <li>
                       <NavigationMenuLink
                         href="#"
@@ -171,14 +169,7 @@ export default function LandingNavbar() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink
-                  href="/docs"
-                  className={navigationMenuTriggerStyle()}
-                >
-                  Docs
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+              
             </NavigationMenuList>
           </NavigationMenu>
           <div className="flex items-center gap-4">
@@ -201,6 +192,24 @@ export default function LandingNavbar() {
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           >
+            <div className="flex w-full flex-col gap-3 border border-white p-5 rounded-2xl">
+              <p className="text-sm font-semibold text-neutral-500">Switch mode</p>
+              {modeItems.map((item) => (
+                <a
+                  key={item.title}
+                  href={item.href}
+                  aria-current={activeMode?.title === item.title ? "page" : undefined}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={
+                    activeMode?.title === item.title
+                      ? "relative font-semibold text-black dark:text-white"
+                      : "relative text-neutral-600 dark:text-neutral-300"
+                  }
+                >
+                  <span className="block">{item.title}</span>
+                </a>
+              ))}
+            </div>
             {navItems.map((item) => (
               <a
                 key={item.name}
