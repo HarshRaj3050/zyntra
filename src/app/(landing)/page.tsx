@@ -8,12 +8,14 @@ const HomePage = () => {
       <div className="h-dvh">
         <HeroSection />
       </div>
-      <div className="h-dvh ">
-        <div className="flex h-full w-full">
-          <div className="flex w-[60%] bg-amber-50">
+
+      {/* Duo Section */}
+      <div className="h-dvh rounded-b-4xl ">
+        <div className="flex h-auto lg:h-full w-full lg:flex-row flex-col-reverse">
+          <div className="flex w-full lg:w-[60%] bg-blue-700">
             <DuoSection />
           </div>
-          <div className="flex h-full w-[40%] flex-col items-center justify-center bg-blue-800">
+          <div className="flex h-full w-full lg:w-[40%] pt-10 lg:pt-0 flex-col items-center justify-center bg-blue-700">
             <h2 className="mb-4 w-full text-center text-5xl font-bold text-white">
               Why Choose Zyntra?
             </h2>
@@ -24,7 +26,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      <div className="h-dvh">Home page</div>
+      <div className="h-dvh bg-[#0E0E0E] text-white ">Home page</div>
     </>
   );
 };

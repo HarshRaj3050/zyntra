@@ -38,14 +38,22 @@ export function DuoSection() {
   }, []);
 
   return (
-    <div ref={sectionRef} className="bg-amber-50">
-      <GlassPhoneDuo
-        className="w-full max-w-4xl bg-amber-50"
-        open={open}
-        finish="star-white"
-        screenSrc="/landing/openDuo.png"
-        coverSrc="/landing/closeDuo.png"
-      />
-    </div>
+    <>
+      <div className="relative">
+        <div ref={sectionRef} className="bg-blue-700 z-0 relative">
+          <GlassPhoneDuo
+            className="w-full max-w-4xl bg-blue-700"
+            open={open}
+            finish="star-white"
+            screenSrc="/landing/openDuo.png"
+            coverSrc="/landing/closeDuo.png"
+          />
+           <h3 className="absolute inset-x-0 bottom-15 z-10 text-center text-2xl text-white">
+          Manage Everything from One Dashboard
+        </h3>
+        </div>
+       
+      </div>
+    </>
   );
 }

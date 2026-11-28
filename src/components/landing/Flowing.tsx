@@ -46,8 +46,8 @@ const Flowing = ({ className }: FlowingProps) => {
         magnet={0.25}
         followCursor={0.4}
         textColor="#ffffff"
-        bgColor="#1e40af"
-        marqueeBgColor="#FFFBEB"
+        bgColor="rgb(20, 71, 230)"
+        marqueeBgColor="rgb(59, 130, 246)"
         marqueeTextColor="#120F17"
         direction="left"
         duration={0.5}

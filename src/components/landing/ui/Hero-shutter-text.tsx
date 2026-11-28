@@ -56,7 +56,7 @@ export default function HeroText({
                     delay: i * 0.04,
                     ease: "easeInOut",
                   }}
-                  className="absolute inset-0 text-[9vw] 2xl:text-[9.5vw] leading-none 2xl:leading-30 font-black tracking-tighter text-indigo-600 z-10 pointer-events-none"
+                  className="absolute inset-0 text-[9vw] 2xl:text-[9.5vw] leading-none 2xl:leading-30 font-black tracking-tighter text-blue-700 z-10 pointer-events-none"
                   style={{
                     clipPath: "polygon(0 0, 100% 0, 100% 35%, 0 35%)",
                   }}
@@ -91,7 +91,7 @@ export default function HeroText({
                     delay: i * 0.04 + 0.2,
                     ease: "easeInOut",
                   }}
-                  className="absolute inset-0 text-[9vw] 2xl:text-[9.5vw] leading-none font-black tracking-tighter text-indigo-600 z-10 pointer-events-none"
+                  className="absolute inset-0 text-[9vw] 2xl:text-[9.5vw] leading-none font-black tracking-tighter text-blue-700 z-10 pointer-events-none"
                   style={{
                     clipPath:
                       "polygon(0 65%, 100% 65%, 100% 100%, 0 100%)",
